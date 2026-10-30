@@ -1,6 +1,8 @@
 # Plan: herramienta de cuadre Stress Test EBA ↔ FINREP/COREP
 
-Estado: **borrador v2**, con las decisiones del usuario (§8). Bloqueado en la fase 0 (falta acceso a los documentos EBA).
+Estado: **v3, esqueleto implementado** (motor, loaders, informe Excel, app Streamlit y
+flujo de extracción con contratos para agentes externos), validado con datos sintéticos.
+Pendiente: documentos EBA reales (fase 0) para poblar conceptos y reglas.
 Ninguna fuente de la EBA se ha descargado todavía: el dominio `eba.europa.eu`
 está bloqueado por la política de red del entorno donde se redactó este plan.
 
@@ -315,3 +317,14 @@ verificable.
 | 3 | Motor + catálogo inicial (≈20 reglas de alto valor: total activo, fondos propios, APR total, exposiciones por método) | Test end-to-end sintético en verde |
 | 4 | App local (Streamlit) + libro de resultados con drill-down | Un usuario localiza la celda origen de un descuadre en ≤2 clics |
 | 5 | Ampliar el catálogo + reglas de conciliación CRR3 + (opcional) libro con fórmulas vivas | Cobertura documentada regla ↔ fuente |
+
+### Estado de las fases (2026-10-30)
+
+| Fase | Estado |
+|---|---|
+| 0 | Bloqueada: falta acceso a `eba.europa.eu` o subir los documentos |
+| 1 | Esqueleto hecho (`cuadre-extract`: ingest, inventory, tasks, review, propose, export). Los agentes los pone el usuario |
+| 2 | Hecho: modelo, conceptos por versión, loaders `excel_annex`, `excel_declared`, `xbrl_csv`, `xbrl_xml`. **xBRL sin validar contra paquetes reales** |
+| 3 | Motor hecho; el catálogo real está vacío. Test end-to-end sintético en verde |
+| 4 | Hecho: app Streamlit e informe Excel con drill-down |
+| 5 | Pendiente |

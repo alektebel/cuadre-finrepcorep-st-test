@@ -1,0 +1,32 @@
+# Ficheros de entrada de una entidad. 'escala' convierte a EUR; 'decimales' es la
+# precisión con la que se reporta (define el ruido de redondeo de cada dato).
+fuentes:
+  - marco: ST
+    loader: excel_annex
+    fichero: data/synthetic/st_annex.xlsx
+    escala: 1000000      # millones de EUR
+    decimales: 2         # redondeo = 0,5 x 1e6 x 0,01 = 5.000 EUR por dato
+  - marco: FINREP
+    loader: excel_annex
+    fichero: data/synthetic/finrep_annex.xlsx
+    escala: 1
+    decimales: 2
+  - marco: FINREP
+    loader: excel_declared
+    fichero: data/synthetic/finrep_export_propio.xlsx
+    escala: 1
+    decimales: 2
+    opciones:
+      layout: data/synthetic/finrep_export_propio.layout.yaml
+  - marco: COREP
+    loader: excel_annex
+    fichero: data/synthetic/corep_annex.xlsx
+    escala: 1
+    decimales: 2
+    opciones:
+      sheets:
+        SYN_C01.00: {template: SYN_C01.00}
+        SYN_C02.00: {template: SYN_C02.00}
+        SYN_C07.00_CORP: {template: SYN_C07.00, z: CORP}
+        SYN_C07.00_RETAIL: {template: SYN_C07.00, z: RETAIL}
+ajustes: data/synthetic/ajustes.yaml

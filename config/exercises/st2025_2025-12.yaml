@@ -1,0 +1,13 @@
+id: st2025@2025-12-31
+nombre: Plantillas ST 2025 con datos a 31/12/2025 (no es un ejercicio EU-wide oficial)
+fecha_referencia: 2025-12-31
+# A 12/2025 COREP/FINREP van con el marco 4.x (CRR3). Confirmar la versión exacta
+# aplicable (4.1 / 4.2) antes de rellenar los mapas de conceptos.
+marcos: {ST: st2025, FINREP: "4.x", COREP: "4.x"}
+conceptos:
+  - concepts/st2025.yaml
+  - concepts/finrep_4.x.yaml
+  - concepts/corep_4.x.yaml
+reglas:
+  - rules/st2025/*.yaml
+gravedad: config/severity.yaml

@@ -1,0 +1,9 @@
+id: sintetico
+nombre: Juego sintético de prueba (plantillas SYN_*, NO EBA)
+fecha_referencia: 2024-12-31
+marcos: {ST: sintetico, FINREP: sintetico, COREP: sintetico}
+conceptos:
+  - concepts/synthetic.yaml
+reglas:
+  - rules/synthetic/*.yaml
+gravedad: config/severity.yaml

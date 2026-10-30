@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cuadre"
+version = "0.1.0"
+description = "Cuadre trazable entre plantillas del EU-wide stress test (EBA) y FINREP/COREP"
+requires-python = ">=3.11"
+dependencies = [
+  "openpyxl>=3.1",
+  "pandas>=2.0",
+  "PyYAML>=6.0",
+  "jsonschema>=4.0",
+  "pypdf>=4.0",
+  "lxml>=5.0",
+]
+
+[project.optional-dependencies]
+app = ["streamlit>=1.30"]
+dev = ["pytest>=8"]
+
+[project.scripts]
+cuadre = "cuadre.cli:main"
+cuadre-extract = "cuadre.extract.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+cuadre = ["extract/prompts/*.md", "extract/schemas/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

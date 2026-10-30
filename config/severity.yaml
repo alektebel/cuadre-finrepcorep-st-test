@@ -1,0 +1,8 @@
+# Gravedad de los descuadres. Se aplica sobre la diferencia NO explicada por redondeo.
+# Gana el grado más grave entre la escala absoluta y la relativa.
+tolerance_eur: 0.005
+levels: [Leve, Moderado, Grave, Crítico]
+# Límites superiores (exclusivos) de Leve, Moderado y Grave; por encima: Crítico.
+abs_thresholds_eur: [1000, 100000, 1000000]
+# Relativo = diferencia / max(|LHS|, |RHS|)
+rel_thresholds: [0.0001, 0.001, 0.01]

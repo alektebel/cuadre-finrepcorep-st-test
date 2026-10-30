@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Veredicto del verificador independiente (paso 6)",
+  "type": "object",
+  "required": ["rule_id", "verdict", "reason"],
+  "additionalProperties": false,
+  "properties": {
+    "rule_id": {"type": "string"},
+    "verdict": {"enum": ["si", "no", "parcial"]},
+    "reason": {"type": "string"},
+    "suggested_fix": {"type": "string"}
+  }
+}

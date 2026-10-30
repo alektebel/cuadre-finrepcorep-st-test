@@ -1,0 +1,29 @@
+# Conceptos del juego sintético. Plantillas SYN_*: NO son celdas EBA reales.
+conceptos:
+  st.total_assets:        {ref: "ST:SYN_ST_BAL!r0010c0010", etiqueta: Total activo}
+  st.cet1:                {ref: "ST:SYN_ST_CAP!r0010c0010", etiqueta: CET1}
+  st.at1:                 {ref: "ST:SYN_ST_CAP!r0020c0010", etiqueta: AT1}
+  st.t2:                  {ref: "ST:SYN_ST_CAP!r0030c0010", etiqueta: T2}
+  st.own_funds:           {ref: "ST:SYN_ST_CAP!r0040c0010", etiqueta: Total fondos propios}
+  st.rea_total:           {ref: "ST:SYN_ST_CAP!r0050c0010", etiqueta: Total APR}
+  st.rea_market:          {ref: "ST:SYN_ST_CAP!r0060c0010", etiqueta: APR mercado}
+  st.cr.corp.exposure:    {ref: "ST:SYN_ST_CR!r0010c0010", etiqueta: Exposición corporates}
+  st.cr.corp.rea:         {ref: "ST:SYN_ST_CR!r0010c0020", etiqueta: APR corporates}
+  st.cr.retail.exposure:  {ref: "ST:SYN_ST_CR!r0020c0010", etiqueta: Exposición retail}
+  st.cr.retail.rea:       {ref: "ST:SYN_ST_CR!r0020c0020", etiqueta: APR retail}
+  finrep.cash:            {ref: "FINREP:SYN_F01.01!r0010c0010", etiqueta: Efectivo}
+  finrep.loans:           {ref: "FINREP:SYN_F01.01!r0020c0010", etiqueta: Préstamos}
+  finrep.securities:      {ref: "FINREP:SYN_F01.01!r0030c0010", etiqueta: Valores}
+  finrep.other_assets:    {ref: "FINREP:SYN_F01.01!r0040c0010", etiqueta: Otros activos}
+  finrep.total_assets:    {ref: "FINREP:SYN_F01.01!r0100c0010", etiqueta: Total activo}
+  finrep.total_equity:    {ref: "FINREP:SYN_F01.03!r0100c0010", etiqueta: Total patrimonio}
+  corep.cet1:             {ref: "COREP:SYN_C01.00!r0010c0010", etiqueta: CET1}
+  corep.at1:              {ref: "COREP:SYN_C01.00!r0020c0010", etiqueta: AT1}
+  corep.t2:               {ref: "COREP:SYN_C01.00!r0030c0010", etiqueta: T2}
+  corep.own_funds:        {ref: "COREP:SYN_C01.00!r0100c0010", etiqueta: Total fondos propios}
+  corep.rea_credit:       {ref: "COREP:SYN_C02.00!r0010c0010", etiqueta: APR crédito}
+  corep.rea_total:        {ref: "COREP:SYN_C02.00!r0100c0010", etiqueta: Total APR}
+  corep.sa.corp.exposure: {ref: "COREP:SYN_C07.00!r0010c0010@CORP", etiqueta: Exposición SA corporates}
+  corep.sa.corp.rea:      {ref: "COREP:SYN_C07.00!r0010c0020@CORP", etiqueta: APR SA corporates}
+  corep.sa.retail.exposure: {ref: "COREP:SYN_C07.00!r0010c0010@RETAIL", etiqueta: Exposición SA retail}
+  corep.sa.retail.rea:    {ref: "COREP:SYN_C07.00!r0010c0020@RETAIL", etiqueta: APR SA retail}

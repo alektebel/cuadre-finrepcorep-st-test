@@ -1,0 +1,25 @@
+# Plantilla para una entidad real. Copiar, renombrar y rellenar.
+fuentes:
+  - marco: ST
+    loader: excel_annex            # plantillas ST 2025 de la EBA (verificar layout al tenerlas)
+    fichero: data/entidad/st2025_templates.xlsx
+    escala: 1000000                # VERIFICAR en la Template Guidance la unidad exigida
+    decimales: 2
+  - marco: FINREP
+    loader: excel_annex            # export con layout de anexo EBA
+    fichero: data/entidad/finrep.xlsx
+    escala: 1
+    decimales: 2
+  # - marco: COREP
+  #   loader: excel_declared       # export con layout propio
+  #   fichero: data/entidad/corep_export.xlsx
+  #   opciones: {layout: config/layouts/corep_export.yaml}
+  # - marco: COREP
+  #   loader: xbrl_csv             # report package EBA (zip o carpeta)
+  #   fichero: data/entidad/corep_report_package.zip
+  #   opciones: {datapoint_map: concepts/dpm/corep_4.x_datapoints.csv}
+  # - marco: FINREP
+  #   loader: xbrl_xml
+  #   fichero: data/entidad/finrep_instance.xbrl
+  #   opciones: {fact_map: concepts/dpm/finrep_3.3_facts.csv}
+# ajustes: data/entidad/ajustes_conciliacion.yaml

@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Borrador de regla en el DSL de la herramienta (salida del paso 4 o de propuestas)",
+  "type": "object",
+  "required": ["candidate_id", "rule"],
+  "additionalProperties": false,
+  "properties": {
+    "candidate_id": {"type": "string"},
+    "rule": {
+      "type": "object",
+      "required": ["id", "descripcion", "tipo", "lhs", "rhs", "origen"],
+      "properties": {
+        "id": {"type": "string"},
+        "descripcion": {"type": "string"},
+        "tipo": {"enum": ["igualdad", "menor_igual", "mayor_igual", "conciliacion"]},
+        "lhs": {"type": "string"},
+        "rhs": {"type": "string"},
+        "origen": {"enum": ["normativa", "plantilla", "propuesta"]},
+        "fuente": {
+          "type": "object",
+          "properties": {
+            "documento": {"type": "string"},
+            "apartado": {"type": "string"},
+            "pagina": {"type": "integer"},
+            "cita": {"type": "string"}
+          }
+        },
+        "faltantes": {"enum": ["error", "zero"]},
+        "gravedad_maxima": {"type": "string"},
+        "etiquetas": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "new_concepts": {
+      "type": "object",
+      "description": "Conceptos que la regla usa y aún no existen: nombre -> {ref, etiqueta}",
+      "additionalProperties": {"type": "object", "required": ["ref"],
+        "properties": {"ref": {"type": "string"}, "etiqueta": {"type": "string"}}}
+    },
+    "unresolved": {"type": "array", "items": {"type": "string"},
+      "description": "Operandos que no se han podido mapear a celda: NO inventar"}
+  }
+}

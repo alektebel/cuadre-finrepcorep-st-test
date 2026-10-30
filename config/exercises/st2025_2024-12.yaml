@@ -1,0 +1,14 @@
+id: st2025@2024-12-31
+nombre: EU-wide stress test 2025 — punto de partida 31/12/2024
+fecha_referencia: 2024-12-31
+# COREP/FINREP a 12/2024 se remitieron con el marco 3.3 (pre-CRR3).
+# Las plantillas ST 2025 piden el punto de partida reexpresado a CRR3:
+# las reglas de APR/exposiciones de crédito deben ser de tipo 'conciliacion'.
+marcos: {ST: st2025, FINREP: "3.3", COREP: "3.3"}
+conceptos:
+  - concepts/st2025.yaml
+  - concepts/finrep_3.3.yaml
+  - concepts/corep_3.3.yaml
+reglas:
+  - rules/st2025/*.yaml
+gravedad: config/severity.yaml

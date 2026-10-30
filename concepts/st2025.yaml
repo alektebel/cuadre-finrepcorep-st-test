@@ -1,0 +1,4 @@
+# Mapa de conceptos para 'st2025'. VACÍO hasta tener la taxonomía / las plantillas EBA.
+# Cada entrada: nombre_concepto: {ref: "MARCO:PLANTILLA!rFILAcCOL[@Z]", etiqueta: ..., verificado: false}
+# 'verificado: true' solo cuando alguien haya comprobado la celda contra la fuente oficial.
+conceptos: {}

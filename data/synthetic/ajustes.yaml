@@ -1,0 +1,7 @@
+ajustes:
+- regla: SYN-R13
+  importe: 120000000
+  explicacion: Reexpresión CRR3 del APR minorista en el punto de partida ST (sintético)
+- regla: SYN-R06
+  importe: 120000000
+  explicacion: Reexpresión CRR3 del APR minorista (sintético)

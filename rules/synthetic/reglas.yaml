@@ -1,0 +1,93 @@
+# Reglas del juego sintético. Solo para pruebas.
+reglas:
+  - id: SYN-R01
+    descripcion: Total activo ST = total activo FINREP
+    tipo: igualdad
+    lhs: "{concept:st.total_assets}"
+    rhs: "{concept:finrep.total_assets}"
+    origen: sintetica
+  - id: SYN-R02
+    descripcion: CET1 ST = CET1 COREP
+    tipo: igualdad
+    lhs: "{concept:st.cet1}"
+    rhs: "{concept:corep.cet1}"
+    origen: sintetica
+  - id: SYN-R03
+    descripcion: AT1 ST = AT1 COREP
+    tipo: igualdad
+    lhs: "{concept:st.at1}"
+    rhs: "{concept:corep.at1}"
+    origen: sintetica
+  - id: SYN-R04
+    descripcion: T2 ST = T2 COREP
+    tipo: igualdad
+    lhs: "{concept:st.t2}"
+    rhs: "{concept:corep.t2}"
+    origen: sintetica
+  - id: SYN-R05
+    descripcion: Fondos propios ST = fondos propios COREP
+    tipo: igualdad
+    lhs: "{concept:st.own_funds}"
+    rhs: "{concept:corep.own_funds}"
+    origen: sintetica
+  - id: SYN-R06
+    descripcion: APR total ST = APR total COREP + reexpresión CRR3 explicada
+    tipo: conciliacion
+    lhs: "{concept:st.rea_total}"
+    rhs: "{concept:corep.rea_total}"
+    origen: sintetica
+  - id: SYN-R07
+    descripcion: Exposición corporates ST = COREP C07 (z=CORP)
+    tipo: igualdad
+    lhs: "{concept:st.cr.corp.exposure}"
+    rhs: "{concept:corep.sa.corp.exposure}"
+    origen: sintetica
+  - id: SYN-R08
+    descripcion: Exposición retail ST = COREP C07 (z=RETAIL)
+    tipo: igualdad
+    lhs: "{concept:st.cr.retail.exposure}"
+    rhs: "{concept:corep.sa.retail.exposure}"
+    origen: sintetica
+  - id: SYN-R09
+    descripcion: APR corporates ST = COREP C07 (z=CORP)
+    tipo: igualdad
+    lhs: "{concept:st.cr.corp.rea}"
+    rhs: "{concept:corep.sa.corp.rea}"
+    origen: sintetica
+  - id: SYN-R10
+    descripcion: "Control interno ST: fondos propios = CET1 + AT1 + T2"
+    tipo: igualdad
+    lhs: "{concept:st.own_funds}"
+    rhs: "{concept:st.cet1} + {concept:st.at1} + {concept:st.t2}"
+    origen: plantilla
+  - id: SYN-R11
+    descripcion: "Control interno FINREP: total activo = suma de partidas"
+    tipo: igualdad
+    lhs: "{concept:finrep.total_assets}"
+    rhs: "{concept:finrep.cash} + {concept:finrep.loans} + {concept:finrep.securities} + {concept:finrep.other_assets}"
+    origen: sintetica
+  - id: SYN-R12
+    descripcion: APR crédito COREP >= suma APR SA por clase
+    tipo: mayor_igual
+    lhs: "{concept:corep.rea_credit}"
+    rhs: "{concept:corep.sa.corp.rea} + {concept:corep.sa.retail.rea}"
+    origen: sintetica
+  - id: SYN-R13
+    descripcion: APR retail ST = COREP C07 retail + reexpresión CRR3 explicada
+    tipo: conciliacion
+    lhs: "{concept:st.cr.retail.rea}"
+    rhs: "{concept:corep.sa.retail.rea}"
+    origen: sintetica
+  - id: SYN-R14
+    descripcion: APR mercado ST = APR mercado COREP (el ST no lo reporta)
+    tipo: igualdad
+    lhs: "{concept:st.rea_market}"
+    rhs: "{COREP:SYN_C02.00!r0020c0010}"
+    origen: sintetica
+  - id: SYN-R15
+    descripcion: "(Propuesta) Patrimonio FINREP >= fondos propios COREP"
+    tipo: mayor_igual
+    lhs: "{concept:finrep.total_equity}"
+    rhs: "{concept:corep.own_funds}"
+    origen: propuesta
+    gravedad_maxima: Leve

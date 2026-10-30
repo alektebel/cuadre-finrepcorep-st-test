@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Candidato de cuadre extraído de un documento EBA (salida del paso 3)",
+  "type": "object",
+  "required": ["candidate_id", "doc", "page", "paragraph", "quote", "kind", "operands_text"],
+  "additionalProperties": false,
+  "properties": {
+    "candidate_id": {"type": "string", "pattern": "^[A-Za-z0-9_.-]+$"},
+    "doc": {"type": "string"},
+    "page": {"type": "integer", "minimum": 1},
+    "paragraph": {"type": "string", "description": "Número de párrafo EBA o id de bloque (p12.b3)"},
+    "quote": {"type": "string", "minLength": 20, "description": "Cita LITERAL, copiada del texto de la página"},
+    "kind": {"enum": ["igualdad", "menor_igual", "mayor_igual", "conciliacion", "definicion_por_referencia"]},
+    "operands_text": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "required": ["side", "text"], "additionalProperties": false,
+        "properties": {
+          "side": {"enum": ["LHS", "RHS"]},
+          "text": {"type": "string", "description": "Cómo nombra el documento el operando"},
+          "hint": {"type": "string", "description": "Plantilla/fila/columna si el documento la cita"}
+        }
+      }
+    },
+    "applies_to": {"type": "string", "description": "Perímetro: punto de partida, método IRB/SA, etc."},
+    "confidence": {"enum": ["alta", "media", "baja"]},
+    "notes": {"type": "string"}
+  }
+}

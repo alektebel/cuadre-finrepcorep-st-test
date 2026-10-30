@@ -1,0 +1,7 @@
+hojas:
+- hoja: Patrimonio
+  plantilla: SYN_F01.03
+  celdas:
+    E5: r0010c0010
+    E6: r0020c0010
+    E8: r0100c0010

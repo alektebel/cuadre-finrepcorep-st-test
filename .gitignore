@@ -1,0 +1,12 @@
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.venv/
+# Descargas originales: no se versionan; se trazan con data/manifest.yaml
+data/raw/**
+!data/raw/.gitkeep
+# Salidas de ejecución
+out/
+work/**
+!work/.gitkeep
+~$*.xlsx

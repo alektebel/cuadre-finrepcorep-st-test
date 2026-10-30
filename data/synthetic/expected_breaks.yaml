@@ -1,0 +1,24 @@
+SYN-R01:
+  estado: REDONDEO
+  gravedad: —
+SYN-R02:
+  estado: KO
+  gravedad: Crítico
+SYN-R03:
+  estado: KO
+  gravedad: Crítico
+SYN-R07:
+  estado: KO
+  gravedad: Grave
+SYN-R10:
+  estado: KO
+  gravedad: Moderado
+SYN-R11:
+  estado: KO
+  gravedad: Moderado
+SYN-R14:
+  estado: NO_EVALUABLE
+  gravedad: —
+SYN-R15:
+  estado: KO
+  gravedad: Leve
