@@ -1,6 +1,6 @@
 # Plan: herramienta de cuadre Stress Test EBA ↔ FINREP/COREP
 
-Estado: **borrador pendiente de validar** (ver §8, preguntas abiertas).
+Estado: **borrador v2**, con las decisiones del usuario (§8). Bloqueado en la fase 0 (falta acceso a los documentos EBA).
 Ninguna fuente de la EBA se ha descargado todavía: el dominio `eba.europa.eu`
 está bloqueado por la política de red del entorno donde se redactó este plan.
 
@@ -180,27 +180,138 @@ solo demostrarían que no se rompe.
 | `ST_*`, `FINREP_*`, `COREP_*` | Copia de los datos de entrada con las celdas implicadas en descuadres resaltadas |
 | `Metadatos` | Versión del catálogo, hashes de entrada, fecha de ejecución, versión de la herramienta |
 
-## 8. Preguntas abiertas (bloqueantes)
+## 8. Decisiones tomadas (respuestas del usuario, 2026-10-30)
 
-1. ¿Qué ejercicio y qué fecha exacta? ¿ST EU-wide 2025 con punto de partida
-   12/2024, u otro con datos a 12/2025?
-2. ¿Excel es un requisito duro de *ejecución* (no se puede usar Python) o solo
-   de *presentación*?
-3. ¿En qué formato llega FINREP/COREP de la entidad: xBRL-XML, xBRL-CSV o
-   exports Excel de una herramienta interna (Vermeg/AxiomSL/Wolters Kluwer…)?
-4. ¿Ya tienes una lista de reglas de cuadre (por ejemplo, del QA de la
-   autoridad competente) o hay que extraerla de la Template Guidance?
-5. ¿Qué perímetro: solo punto de partida o también proyecciones?
-   (Las proyecciones no tienen contraparte en FINREP/COREP.)
-6. ¿Tolerancias: el redondeo a millones de la EBA o un umbral propio?
+| Tema | Decisión |
+|---|---|
+| Ejercicio | EU-wide stress test. La herramienta se parametriza por **ejercicio + fecha de referencia** y soporta dos configuraciones: `st2025@2024-12-31` (oficial) y `st2025@2025-12-31` (plantillas 2025 con datos de 12/2025). |
+| Plataforma | No tiene que ser Excel. Motor Python, revisión en una app local y exportación a Excel trazable. |
+| Formato FINREP/COREP | Prioridad: Excel. Además, xBRL-CSV y xBRL-XML. |
+| Origen de los cuadres | (a) Extraídos de la guía EBA mediante un flujo de agentes; (b) cuadres propuestos a partir de las celdas, separados de los normativos. |
+| Perímetro | Solo el punto de partida. Las proyecciones quedan fuera. |
+| Tolerancia | 0,005 EUR, con grados de gravedad según el importe del descuadre. |
+
+### 8.1 Riesgos de estas decisiones
+
+- **Tolerancia de 0,005 EUR frente a datos en millones.** Creo (confianza media;
+  pendiente de verificar en la Template Guidance) que las plantillas ST piden los
+  importes en millones de EUR. Si una cifra viene redondeada a millones, solo el
+  redondeo puede dar hasta ±500.000 EUR de diferencia, y todas las reglas saldrían KO.
+  Tratamiento:
+  1. Pasar todo a EUR antes de comparar.
+  2. Guardar la precisión declarada de cada operando (decimales en XBRL; inferida en Excel).
+  3. Mostrar dos cifras:
+     - `dif_bruta`;
+     - `dif_no_explicada = max(0, |dif| - ruido_redondeo)`, donde `ruido_redondeo`
+       es la suma de medias unidades de la precisión de cada operando.
+  4. La tolerancia de 0,005 EUR y los grados de gravedad se aplican a
+     `dif_no_explicada`. La regla se marca KO si `dif_no_explicada > 0,005 EUR`.
+     Si `dif_bruta` supera 0,005 EUR pero el exceso cabe en el redondeo, se
+     marca como "redondeo". Así no se oculta el descuadre.
+- **Grados de gravedad.** Los umbrales son configurables (`config/severity.yaml`).
+  Por defecto se combina una escala absoluta y otra relativa, y gana la más grave:
+
+  | Grado | Absoluto (EUR) | Relativo (dif / max(\|LHS\|,\|RHS\|)) |
+  |---|---|---|
+  | OK | ≤ 0,005 | — |
+  | Redondeo | dentro del ruido de redondeo | — |
+  | Leve | < 1.000 | < 0,01 % |
+  | Moderado | < 100.000 | < 0,1 % |
+  | Grave | < 1.000.000 | < 1 % |
+  | Crítico | ≥ 1.000.000 | ≥ 1 % |
+
+  Motivo de la parte relativa: 900.000 EUR de diferencia sobre un total de
+  activo de 500.000 M es ruido, pero sobre una partida de 2 M es un error de
+  fondo. Con una escala solo absoluta se ordenan mal.
+- **FINREP/COREP en Excel.** No hay un layout estándar: cada herramienta
+  (AxiomSL, Vermeg, Wolters Kluwer, exportación propia) saca un Excel distinto.
+  Se implementan dos loaders:
+  1. **Layout de anexo EBA:** detecta los códigos de fila y columna (`0010`,
+     `0020`…) en las cabeceras de cada hoja. Cubre la mayoría de exports.
+  2. **Layout declarado:** un YAML por fuente indica hoja, rango y qué celda
+     es cada datapoint.
+
+  El riesgo es que el loader 1 se equivoque al detectar las cabeceras sin
+  avisar. Por eso cada carga genera un informe de cobertura: datapoints
+  esperados, encontrados y ambiguos.
+- **Dos marcos de reporting.** Con CRR3 cambian los códigos de fila y columna de
+  COREP: 12/2024 se reportó con el marco 3.3 y 12/2025 con el 4.x. Las reglas
+  no apuntan a celdas físicas, sino a **conceptos** (`corep.own_funds.cet1`,
+  `finrep.total_assets`…). Una capa de mapeo por versión traduce cada concepto
+  a su celda. Sin esa capa, el catálogo tendría que duplicarse por ejercicio.
+
+### 8.2 Interfaz: app local + Excel
+
+- **App local:** Python con Streamlit (o FastAPI + HTML estático). Muestra una
+  tabla de checks filtrable por gravedad, plantilla y estado. Al pulsar un check
+  se ve el detalle de operandos, con los valores, la celda de origen, el
+  fichero y la cita normativa. Además hay un visor de cada plantilla de entrada
+  con las celdas implicadas resaltadas.
+- **Angular, descartado para la v1:** obliga a mantener dos lenguajes y una
+  cadena de build de Node, y añade una API REST para un único usuario en local.
+  No aporta nada que Streamlit no dé para este caso. Solo tendría sentido si la
+  herramienta pasa a ser multiusuario o se despliega en un servidor.
+- **Export Excel (§7):** el mismo resultado, con hipervínculos y un libro
+  opcional de fórmulas vivas. Es el entregable que se archiva y se envía
+  como evidencia.
+
+### 8.3 Flujo de agentes para extraer los cuadres
+
+Requisito previo: tener los documentos. Hay dos vías: permitir `eba.europa.eu`
+en la red del entorno, o subirlos a `data/raw/eba_st2025/`. Sin ellos el flujo
+**no se ejecuta**: un modelo que "recuerda" la guía produce reglas sin fuente
+verificable.
+
+```
+ PDF guía + methodological note           Plantillas ST (xlsx)
+        │                                        │
+  [1] ingest (determinista)               [2] inventario (determinista)
+  texto por página + nº párrafo           celda → (plantilla, fila, col, etiqueta,
+        │                                  fórmulas/controles internos)
+        ▼                                        │
+  [3] Extractor (Sonnet 5.5, por bloques) ◄──────┘
+  → candidatos JSON: {cita literal, página, operandos en texto, tipo}
+        ▼
+  [4] Traductor (Sonnet 5.5)
+  → regla en DSL (rules/*.yaml) con referencias a conceptos/celdas del inventario
+        ▼
+  [5] Verificación determinista
+  - la cita aparece literal en la página indicada
+  - todas las celdas/conceptos existen en el inventario
+  - el YAML valida contra el esquema
+        ▼
+  [6] Verificador (otro modelo, sin ver el razonamiento del extractor)
+  "¿la cita implica exactamente esta regla?" → sí / no / parcial + motivo
+        ▼
+  [7] Revisión humana (hoja Excel / pantalla de la app): aceptar, editar, rechazar
+```
+
+- Los controles internos que ya vienen como fórmulas en las plantillas ST se
+  extraen en el paso [2] con código. No necesitan LLM, que en este caso solo
+  aportaría error.
+- **Cuadres propuestos (no normativos):**
+  - Un agente [P] cruza etiquetas y definiciones de las celdas ST con las
+    etiquetas de las celdas FINREP/COREP. También busca identidades
+    aritméticas evidentes: totales = suma de desgloses, mismo concepto en dos
+    plantillas ST.
+  - Estas reglas llevan `origen: propuesta` y gravedad máxima "aviso" hasta
+    que alguien las acepte.
+  - En la app se ven en una pestaña aparte. Si se mezclan con las normativas,
+    se pierde la trazabilidad que se busca.
+- **Ejecución:**
+  - La primera pasada se hace dentro de la sesión, con subagentes Sonnet 5.5.
+  - Después se convierte en un script reproducible (`tools/extract_rules/`)
+    con la API de Anthropic. La guía cambia en cada ejercicio (bienal) y el
+    flujo tiene que poder repetirse y auditarse: prompts versionados y
+    salidas guardadas.
 
 ## 9. Fases
 
 | Fase | Entregable | Criterio de salida |
 |---|---|---|
-| 0 | Respuestas a §8 + acceso de red a `eba.europa.eu` | Fuentes descargadas y hasheadas en `manifest.yaml` |
-| 1 | Inventario de las plantillas ST y extracción de las referencias a FINREP/COREP de la guidance | `rules/SOURCES.md` con cada candidata y su párrafo |
-| 2 | Modelo de datos + loaders ST y xBRL-CSV | Tests de carga sobre ficheros reales de la EBA |
+| 0 | Acceso a los documentos EBA (red o subida manual) | Fuentes descargadas y hasheadas en `manifest.yaml` |
+| 1 | Flujo de agentes §8.3 (pasos 1–7) + cuadres propuestos | Catálogo revisado; cada regla normativa con cita verificada literalmente |
+| 2 | Modelo de datos + capa de conceptos por versión de marco + loaders (ST, Excel anexo EBA, Excel declarado, xBRL-CSV, xBRL-XML) | Tests de carga sobre ficheros reales de la EBA |
 | 3 | Motor + catálogo inicial (≈20 reglas de alto valor: total activo, fondos propios, APR total, exposiciones por método) | Test end-to-end sintético en verde |
-| 4 | Libro de resultados con drill-down | Un usuario localiza la celda origen de un descuadre en ≤2 clics |
+| 4 | App local (Streamlit) + libro de resultados con drill-down | Un usuario localiza la celda origen de un descuadre en ≤2 clics |
 | 5 | Ampliar el catálogo + reglas de conciliación CRR3 + (opcional) libro con fórmulas vivas | Cobertura documentada regla ↔ fuente |
