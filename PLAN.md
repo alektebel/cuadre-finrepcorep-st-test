@@ -344,3 +344,17 @@ Implementación:
 El motor Python sigue siendo la referencia: un test exige que el libro recalculado dé
 lo mismo que el motor. La app Streamlit pasa a ser una herramienta de mantenimiento
 (revisar reglas extraídas y depurar), no el producto final.
+
+### Fuentes indicadas por el usuario (2026-11-03)
+
+Registradas en `data/manifest.yaml`; se descargan con `python tools/download_sources.py`:
+
+- **EBA/GL/2018/04**: *Guidelines on institutions' stress testing*. Tratan del programa
+  interno de stress testing de cada entidad.
+- **EBA/GL/2021/10**: según fuentes secundarias, *Guidelines on stress tests of deposit
+  guarantee schemes* (revisadas).
+
+Ninguna de las dos parece contener cuadres de plantillas ST ↔ FINREP/COREP a nivel de
+celda. Hay que confirmarlo leyendo los PDF; si se confirma, el extractor sacaría pocos o
+ningún candidato de ellas. No se han podido descargar: la red del entorno bloquea
+`eba.europa.eu` y las réplicas probadas.

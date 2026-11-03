@@ -1,0 +1,42 @@
+# Fuentes oficiales. 'tools/download_sources.py' descarga cada una a data/raw/<carpeta>/,
+# calcula su SHA-256 y lo anota aquí (sha256, descargado). Los ficheros no se versionan.
+#
+# estado: pendiente | descargado | no_encontrado
+fuentes:
+  - id: EBA-GL-2018-04
+    titulo: Guidelines on institutions' stress testing
+    referencia: EBA/GL/2018/04 (19/07/2018, aplican desde 01/01/2019)
+    indicado_por: usuario (2026-11-03)
+    carpeta: eba_gl
+    url: "https://www.eba.europa.eu/sites/default/documents/files/documents/10180/2282644/2b604bc8-fd08-4b17-ac4a-cdd5e662b802/Guidelines%20on%20institutions%20stress%20testing%20%28EBA-GL-2018-04%29.pdf"
+    url_alternativas:
+      - "https://www.bankofengland.co.uk/-/media/boe/files/paper/2020/december/gl-institutions-stress-testing.pdf"
+    pagina: "https://www.eba.europa.eu/guidelines-stress-testing"
+    nota: >
+      Directrices sobre el programa de stress testing INTERNO de las entidades (gobierno,
+      infraestructura de datos, áreas de riesgo, integración en el SREP). No es material del
+      EU-wide stress test ni, por lo que se sabe hasta ahora, contiene cuadres a nivel de celda
+      con FINREP/COREP. Pendiente de confirmar al leer el PDF.
+    estado: pendiente
+
+  - id: EBA-GL-2021-10
+    titulo: Guidelines on stress tests of deposit guarantee schemes under Directive 2014/49/EU (revisadas)
+    referencia: EBA/GL/2021/10 (14/12/2021; sustituyen a EBA/GL/2016/04)
+    indicado_por: usuario (2026-11-03)
+    carpeta: eba_gl
+    url: null   # no se ha localizado la URL directa del PDF; buscar en la página de la EBA
+    pagina: "https://www.eba.europa.eu/"
+    nota: >
+      Según fuentes secundarias (FMA, tablas de cumplimiento del BCE) se refiere a los stress
+      tests de los SISTEMAS DE GARANTÍA DE DEPÓSITOS, no al stress test de solvencia bancaria.
+      Trae un anexo en hoja de cálculo. Confirmar la referencia con el usuario: es posible que
+      se quisiera citar otro documento.
+    estado: pendiente
+
+  - id: EBA-ST2025-TEMPLATES
+    titulo: 2025 EU-wide stress test — templates, template guidance y methodological note
+    indicado_por: plan inicial
+    carpeta: eba_st2025
+    url: null
+    pagina: "https://www.eba.europa.eu/eu-wide-stress-test-2025"
+    estado: pendiente
