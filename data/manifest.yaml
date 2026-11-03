@@ -24,8 +24,10 @@ fuentes:
     referencia: EBA/GL/2021/10 (14/12/2021; sustituyen a EBA/GL/2016/04)
     indicado_por: usuario (2026-11-03)
     carpeta: eba_gl
-    url: null   # no se ha localizado la URL directa del PDF; buscar en la página de la EBA
-    pagina: "https://www.eba.europa.eu/"
+    url: null   # la EBA no expone la URL directa del PDF en los resultados; bajarlo desde 'pagina'
+    url_alternativas:
+      - "https://fitd.it/Content/public/documents/Files/Final_Report_on_Revised_Gudelines_on_DGS_stress_tests.pdf"
+    pagina: "https://www.eba.europa.eu/eba-publishes-revised-guidelines-stress-tests-deposit-guarantee-schemes-dgss"
     nota: >
       Según fuentes secundarias (FMA, tablas de cumplimiento del BCE) se refiere a los stress
       tests de los SISTEMAS DE GARANTÍA DE DEPÓSITOS, no al stress test de solvencia bancaria.
@@ -33,10 +35,27 @@ fuentes:
       se quisiera citar otro documento.
     estado: pendiente
 
-  - id: EBA-ST2025-TEMPLATES
-    titulo: 2025 EU-wide stress test — templates, template guidance y methodological note
+  - id: EBA-ST2025-TEMPLATE-GUIDANCE
+    titulo: 2025 EU-wide stress test - Template Guidance (versión 11/2024)
     indicado_por: plan inicial
     carpeta: eba_st2025
-    url: null
-    pagina: "https://www.eba.europa.eu/eu-wide-stress-test-2025"
+    url: "https://www.eba.europa.eu/sites/default/files/2024-11/080d603a-0e07-499c-84d0-e79b185d0329/2025%20EU-wide%20stress%20test%20-%20Template%20Guidance.pdf"
+    url_alternativas:
+      - "https://dirittobancario.it/wp-content/uploads/2025/01/2025-EU-wide-stress-test-Template-Guidance.pdf"
+    nota: La copia de terceros es de 01/2025 y podría ser una revisión posterior; comprobar versión.
+    estado: pendiente
+
+  - id: EBA-ST2025-METHODOLOGICAL-NOTE
+    titulo: 2025 EU-wide stress test - Methodological Note (versión 11/2024)
+    indicado_por: plan inicial
+    carpeta: eba_st2025
+    url: "https://www.eba.europa.eu/sites/default/files/2024-11/ee01efca-947b-43ae-b17d-20f9d4314e8e/2025%20EU-wide%20stress%20test%20-%20Methodological%20Note.pdf"
+    estado: pendiente
+
+  - id: EBA-ST2025-TEMPLATES
+    titulo: 2025 EU-wide stress test - Templates (Excel)
+    indicado_por: plan inicial
+    carpeta: eba_st2025
+    url: null   # enlace en la nota de prensa; no localizado directamente
+    pagina: "https://eba.europa.eu/publications-and-media/press-releases/eba-publishes-methodology-draft-templates-and-key-milestones-its-2025-eu-wide-stress-test"
     estado: pendiente
