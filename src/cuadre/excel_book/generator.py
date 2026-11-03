@@ -159,11 +159,16 @@ def build_workbook(exercise_path: str | Path, out: str | Path, preload_sources: 
                      "VERIFICAR en la Template Guidance la unidad de las plantillas ST.")
     ws_par["A17"].alignment = Alignment(wrap_text=True, vertical="top")
     ws_par.merge_cells("A17:D20")
+    ws_par["A22"], ws_par["B22"] = "Cargar solo datos usados por reglas (SI/NO)", "SI"
+    ws_par["B22"].fill = INPUT_FILL
+    ws_par["A23"] = ("Con SI la macro omite las celdas que ninguna regla usa: una plantilla ST completa "
+                     "puede superar el máximo de filas de Datos.")
     for col, w in zip("ABCD", (22, 20, 24, 20)):
         ws_par.column_dimensions[col].width = w
     _name(wb, "P_Tol", "Parametros!$B$3")
     _name(wb, "P_Niveles", "Parametros!$B$6:$B$9")
     _name(wb, "P_Marcos", "Parametros!$A$13:$C$15")
+    _name(wb, "P_SoloUsados", "Parametros!$B$22")
     for i in range(3):
         _name(wb, f"P_Abs{i + 1}", f"Parametros!$C${6 + i}")
         _name(wb, f"P_Rel{i + 1}", f"Parametros!$D${6 + i}")

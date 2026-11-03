@@ -8,6 +8,7 @@ fuentes:
     referencia: EBA/GL/2018/04 (19/07/2018, aplican desde 01/01/2019)
     indicado_por: usuario (2026-11-03)
     carpeta: eba_gl
+    version_recibida: "ES (corrección), subida a main commit 35133a5; sha256 c3705a02749fd0e8e3601ebe6ad7cbd16dd13ce0fe0fabd8a33b196f6e6a0672"
     url: "https://www.eba.europa.eu/sites/default/documents/files/documents/10180/2282644/2b604bc8-fd08-4b17-ac4a-cdd5e662b802/Guidelines%20on%20institutions%20stress%20testing%20%28EBA-GL-2018-04%29.pdf"
     url_alternativas:
       - "https://www.bankofengland.co.uk/-/media/boe/files/paper/2020/december/gl-institutions-stress-testing.pdf"
@@ -16,8 +17,8 @@ fuentes:
       Directrices sobre el programa de stress testing INTERNO de las entidades (gobierno,
       infraestructura de datos, áreas de riesgo, integración en el SREP). No es material del
       EU-wide stress test ni, por lo que se sabe hasta ahora, contiene cuadres a nivel de celda
-      con FINREP/COREP. Pendiente de confirmar al leer el PDF.
-    estado: pendiente
+      con FINREP/COREP. CONFIRMADO al procesar la versión ES: 0 menciones a FINREP o COREP.
+    estado: descargado
 
   - id: EBA-GL-2021-10
     titulo: Guidelines on stress tests of deposit guarantee schemes under Directive 2014/49/EU (revisadas)
@@ -58,4 +59,27 @@ fuentes:
     carpeta: eba_st2025
     url: null   # enlace en la nota de prensa; no localizado directamente
     pagina: "https://eba.europa.eu/publications-and-media/press-releases/eba-publishes-methodology-draft-templates-and-key-milestones-its-2025-eu-wide-stress-test"
+    estado: pendiente
+
+  - id: EBA-ST2027-DRAFT
+    titulo: 2027 EU-wide stress test - Draft Methodological Note, Template Guidance y Templates
+    indicado_por: usuario (subidos a main, commit 35133a5, 2026-11-03)
+    carpeta: eba_st2027
+    version: "Templates 25Version3, 11/06/2026; fecha de referencia 31/12/2026"
+    ficheros:
+      - {fichero: "2027 EU-wide stress test - Draft Methodological Note.pdf", sha256: e14df6e8b19d039408c7910f12f85058942073a55637d79053c54aa601ca032f}
+      - {fichero: "2027 EU-wide stress test - Draft Template Guidance.pdf", sha256: 0f15d5af07c01fb3b473805bb9d06ee36beae8a09ff81b23607ad55481396248}
+      - {fichero: "2027 EU-wide stress test - Draft Templates.xlsx", sha256: 89684ec7e5ac960fa0abc9afe28d8b5a783f29b2ab91b3cf935f4b79f61a6fac}
+    estado: descargado
+
+  - id: EBA-RF-4.2-COREP-FINREP
+    titulo: Reporting framework 4.2 — plantillas (anexos) e instrucciones COREP y FINREP
+    indicado_por: usuario (2026-11-03)
+    carpeta: eba_reporting
+    url: null   # sin enlace directo localizado; descargar los anexos desde 'pagina'
+    pagina: "https://eba.europa.eu/risk-and-data-analysis/reporting-frameworks/reporting-framework-42"
+    nota: >
+      Necesarias para (1) verificar que las celdas COREP que cita la plantilla ST existen y
+      (2) el inventario COREP/FINREP del flujo de extracción. Confirmar qué versión de marco
+      aplica a la fecha de referencia 31/12/2026 (4.2 o posterior) antes de usarlas.
     estado: pendiente

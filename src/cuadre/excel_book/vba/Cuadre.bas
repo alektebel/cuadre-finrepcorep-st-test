@@ -8,6 +8,9 @@ Attribute VB_Name = "Cuadre"
 ' - Deteccion de codigos igual que el loader Python excel_annex:
 '   codigos de fila/columna como TEXTO ("0010", "r0010", "c0010"); se elige el par
 '   (columna de codigos de fila, fila de cabecera) que explica mas codigos.
+' - Tambien lee el layout de las plantillas oficiales ST de la EBA (columna "RowNum"
+'   y fila de numeros de columna), igual que el loader Python st_eba.
+' - Por defecto solo se cargan los datos que usa alguna regla (Parametros, P_SoloUsados).
 ' - Requiere Windows (Scripting.Dictionary).
 '==============================================================================
 Option Explicit
@@ -19,6 +22,8 @@ Private Const HOJA_PARAM As String = "Parametros"
 Private Const HOJA_FORM As String = "_Formulas"
 Private Const NCOLS_DATOS As Long = 17
 Private Const MAX_FILAS_DATOS As Long = 200000
+
+Private gUsados As Object   ' claves usadas por alguna regla; Nothing = cargar todo
 
 '------------------------------------------------------------------ botones
 Public Sub CargarST()
@@ -101,6 +106,7 @@ Public Sub CargarFicheros(ByVal marco As String)
 
     calcPrev = Application.Calculation
     Application.ScreenUpdating = False
+    Set gUsados = ClavesUsadas()
     Application.Calculation = xlCalculationManual
     On Error GoTo fallo
     For i = LBound(sel) To UBound(sel)
@@ -150,6 +156,7 @@ Private Sub CargarHoja(ByVal ws As Worksheet, ByVal ruta As String, ByVal marco 
     z = ""
     BuscarMapeo marco, ws.Name, plantilla, z, omitir
     If omitir Then Exit Sub
+    If CargarHojaST(ws, ruta, marco, escala, decimales, plantilla, z) Then Exit Sub
 
     If Application.WorksheetFunction.CountA(ws.UsedRange) = 0 Then
         Registrar marco, ruta, ws.Name, plantilla, z, 0, 0, 0, "hoja vacia"
@@ -256,7 +263,7 @@ Private Sub CargarHoja(ByVal ws As Worksheet, ByVal ruta As String, ByVal marco 
     End If
 
     ' 3) valores en las intersecciones
-    Dim salida() As Variant, n As Long, x As Variant, nNoNum As Long, nErr As Long
+    Dim salida() As Variant, n As Long, x As Variant, nNoNum As Long, nErr As Long, nOmit As Long
     ReDim salida(1 To nFil * nCol, 1 To NCOLS_DATOS)
     For i = 1 To nR
         If filaCod(i) <> "" Then
@@ -267,6 +274,8 @@ Private Sub CargarHoja(ByVal ws As Worksheet, ByVal ruta As String, ByVal marco 
                         nErr = nErr + 1
                     ElseIf IsEmpty(x) Then
                         ' celda vacia: no es un dato
+                    ElseIf EsNumero(x) And Not Usado(Clave(marco, plantilla, filaCod(i), colCod(j), z)) Then
+                        nOmit = nOmit + 1
                     ElseIf EsNumero(x) Then
                         n = n + 1
                         salida(n, 2) = marco
@@ -291,8 +300,117 @@ Private Sub CargarHoja(ByVal ws As Worksheet, ByVal ruta As String, ByVal marco 
     If nErr > 0 Then avisos = avisos & nErr & " celdas con error (#N/A, #REF!...) (ignoradas); "
 
     If n > 0 Then EscribirDatos salida, n
-    Registrar marco, ruta, ws.Name, plantilla, z, nFil, nCol, n, avisos
+    Registrar marco, ruta, ws.Name, plantilla, z, nFil, nCol, n, avisos, InfoOmitidos(nOmit)
 End Sub
+
+Private Function CargarHojaST(ByVal ws As Worksheet, ByVal ruta As String, ByVal marco As String, _
+                              ByVal escala As Double, ByVal decimales As Variant, _
+                              ByVal plantilla As String, ByVal z As String) As Boolean
+    ' Layout de las plantillas oficiales ST: cabecera "RowNum" y, encima, fila con los
+    ' numeros de columna 1, 2, 3... Devuelve False si la hoja no tiene ese layout.
+    Dim hdr As Long, rc As Long, r As Long, c As Long, r0 As Long, c0 As Long
+    Dim lastR As Long, lastC As Long, v As Variant, i As Long
+    Dim mejorFila As Long, mejorCnt As Long, cnt As Long
+    Dim colNum() As Long, nCols As Long, nFilas As Long, rn As Variant
+    Dim salida() As Variant, n As Long, nNoNum As Long, nErr As Long, nOmit As Long, avisos As String
+    Dim x As Variant, fila As String, col As String
+
+    If Application.WorksheetFunction.CountA(ws.UsedRange) = 0 Then Exit Function
+    r0 = ws.UsedRange.Row
+    c0 = ws.UsedRange.Column
+    lastR = r0 + ws.UsedRange.Rows.Count - 1
+    lastC = c0 + ws.UsedRange.Columns.Count - 1
+    For r = 1 To 25
+        For c = 1 To IIf(lastC < 60, lastC, 60)
+            If VarType(ws.Cells(r, c).Value) = vbString Then
+                If Trim$(ws.Cells(r, c).Value) = "RowNum" Then hdr = r: rc = c: Exit For
+            End If
+        Next c
+        If hdr > 0 Then Exit For
+    Next r
+    If hdr = 0 Then Exit Function
+    CargarHojaST = True
+
+    ' fila con mas numeros de columna a la derecha de RowNum
+    For r = 1 To hdr - 1
+        cnt = 0
+        For c = rc + 1 To lastC
+            If EnteroColumna(ws.Cells(r, c).Value) > 0 Then cnt = cnt + 1
+        Next c
+        If cnt > mejorCnt Then mejorCnt = cnt: mejorFila = r
+    Next r
+    If mejorCnt = 0 Then
+        Registrar marco, ruta, ws.Name, plantilla, z, 0, 0, 0, "layout RowNum sin fila de numeros de columna", ""
+        Exit Function
+    End If
+    ReDim colNum(1 To lastC)
+    For c = rc + 1 To lastC
+        colNum(c) = EnteroColumna(ws.Cells(mejorFila, c).Value)
+        If colNum(c) > 0 Then nCols = nCols + 1
+    Next c
+    If lastR <= hdr Then
+        Registrar marco, ruta, ws.Name, plantilla, z, 0, nCols, 0, "sin filas de datos", ""
+        Exit Function
+    End If
+
+    v = ws.Range(ws.Cells(hdr + 1, 1), ws.Cells(lastR, lastC)).Value
+    ' primera pasada: contar datos numericos para dimensionar la salida
+    For i = 1 To UBound(v, 1)
+        rn = v(i, rc)
+        If EnteroFila(rn) > 0 Then
+            nFilas = nFilas + 1
+            For c = rc + 1 To lastC
+                If colNum(c) > 0 Then
+                    If EsNumero(v(i, c)) And Not IsError(v(i, c)) Then n = n + 1
+                End If
+            Next c
+        End If
+    Next i
+    If n = 0 Then
+        Registrar marco, ruta, ws.Name, plantilla, z, nFilas, nCols, 0, "", "sin datos numericos"
+        Exit Function
+    End If
+    ReDim salida(1 To n, 1 To NCOLS_DATOS)
+    n = 0
+    For i = 1 To UBound(v, 1)
+        rn = v(i, rc)
+        If EnteroFila(rn) > 0 Then
+            fila = Format$(EnteroFila(rn), "0000")
+            For c = rc + 1 To lastC
+                If colNum(c) > 0 Then
+                    x = v(i, c)
+                    col = Format$(colNum(c), "0000")
+                    If IsError(x) Then
+                        nErr = nErr + 1
+                    ElseIf IsEmpty(x) Then
+                        ' vacia
+                    ElseIf Not EsNumero(x) Then
+                        If Len(Trim$(CStr(x))) > 0 Then nNoNum = nNoNum + 1
+                    ElseIf Not Usado(Clave(marco, plantilla, fila, col, z)) Then
+                        nOmit = nOmit + 1
+                    Else
+                        n = n + 1
+                        salida(n, 2) = marco
+                        salida(n, 3) = plantilla
+                        salida(n, 4) = fila
+                        salida(n, 5) = col
+                        salida(n, 6) = z
+                        salida(n, 7) = CDbl(x)
+                        salida(n, 8) = escala
+                        salida(n, 10) = decimales
+                        salida(n, 12) = ruta
+                        salida(n, 13) = ws.Name
+                        salida(n, 14) = ws.Cells(hdr + i, c).Address(False, False)
+                    End If
+                End If
+            Next c
+        End If
+    Next i
+    If nNoNum > 0 Then avisos = avisos & nNoNum & " valores no numericos (ignorados); "
+    If nErr > 0 Then avisos = avisos & nErr & " celdas con error (ignoradas); "
+    If n > 0 Then EscribirDatos salida, n
+    Registrar marco, ruta, ws.Name, plantilla, z, nFilas, nCols, n, avisos, "layout RowNum; " & InfoOmitidos(nOmit)
+End Function
 
 Private Sub EscribirDatos(ByRef salida() As Variant, ByVal n As Long)
     Dim dat As Worksheet, fila As Long, bloque() As Variant, i As Long, j As Long
@@ -329,6 +447,75 @@ Private Function EsCodigo(ByVal x As Variant) As Boolean
     If VarType(x) <> vbString Then Exit Function
     s = Trim$(x)
     EsCodigo = (s Like "###" Or s Like "####" Or s Like "[rRcC]###" Or s Like "[rRcC]####")
+End Function
+
+Private Function EnteroColumna(ByVal x As Variant) As Long
+    ' Entero 1..999 como numero o como texto ("1", "12"); 0 si no lo es.
+    Dim s As String
+    If IsError(x) Or IsEmpty(x) Then Exit Function
+    If EsNumero(x) Then
+        If x = Int(x) And x >= 1 And x <= 999 Then EnteroColumna = CLng(x)
+    ElseIf VarType(x) = vbString Then
+        s = Trim$(x)
+        If s Like "#" Or s Like "##" Or s Like "###" Then
+            If CLng(s) >= 1 Then EnteroColumna = CLng(s)
+        End If
+    End If
+End Function
+
+Private Function EnteroFila(ByVal x As Variant) As Long
+    ' RowNum: entero >= 1 como numero o texto de hasta 6 cifras; 0 si no lo es.
+    Dim s As String
+    If IsError(x) Or IsEmpty(x) Then Exit Function
+    If EsNumero(x) Then
+        If x = Int(x) And x >= 1 And x < 1000000 Then EnteroFila = CLng(x)
+    ElseIf VarType(x) = vbString Then
+        s = Trim$(x)
+        If Len(s) >= 1 And Len(s) <= 6 And Not s Like "*[!0-9]*" Then
+            If CLng(s) >= 1 Then EnteroFila = CLng(s)
+        End If
+    End If
+End Function
+
+Private Function Clave(ByVal marco As String, ByVal plantilla As String, ByVal fila As String, _
+                       ByVal col As String, ByVal z As String) As String
+    ' Misma construccion que la formula de la columna Clave de Datos.
+    Clave = marco & ":" & plantilla & "!r" & fila & "c" & col
+    If Len(z) > 0 Then Clave = Clave & "@" & z
+End Function
+
+Private Function Usado(ByVal k As String) As Boolean
+    If gUsados Is Nothing Then
+        Usado = True
+    Else
+        Usado = gUsados.Exists(k)
+    End If
+End Function
+
+Private Function InfoOmitidos(ByVal nOmit As Long) As String
+    If nOmit > 0 Then InfoOmitidos = nOmit & " datos no usados por ninguna regla (omitidos)"
+End Function
+
+Private Function ClavesUsadas() As Object
+    ' Claves de la hoja Operandos. Nothing si P_SoloUsados = NO (se carga todo).
+    Dim flag As String, d As Object, v As Variant, i As Long
+    On Error Resume Next
+    flag = UCase$(Trim$(CStr(ThisWorkbook.Names("P_SoloUsados").RefersToRange.Value)))
+    On Error GoTo 0
+    If flag = "NO" Then Exit Function
+    ThisWorkbook.Worksheets("Operandos").Calculate
+    Set d = CreateObject("Scripting.Dictionary")
+    v = ThisWorkbook.Names("O_Clave").RefersToRange.Value
+    If IsArray(v) Then
+        For i = 1 To UBound(v, 1)
+            If VarType(v(i, 1)) = vbString Then
+                If Len(v(i, 1)) > 0 And Not d.Exists(v(i, 1)) Then d.Add v(i, 1), True
+            End If
+        Next i
+    ElseIf VarType(v) = vbString Then
+        d.Add v, True
+    End If
+    Set ClavesUsadas = d
 End Function
 
 Private Function NormCodigo(ByVal s As String) As String
@@ -373,7 +560,8 @@ Private Sub BuscarMapeo(ByVal marco As String, ByVal hoja As String, ByRef plant
 End Sub
 
 Private Sub Registrar(ByVal marco As String, ByVal ruta As String, ByVal hoja As String, ByVal plantilla As String, _
-                      ByVal z As String, ByVal nFil As Long, ByVal nCol As Long, ByVal n As Long, ByVal avisos As String)
+                      ByVal z As String, ByVal nFil As Long, ByVal nCol As Long, ByVal n As Long, ByVal avisos As String, _
+                      Optional ByVal info As String = "")
     Dim ws As Worksheet, r As Long
     Set ws = ThisWorkbook.Worksheets(HOJA_CARGA)
     r = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row + 1
@@ -388,7 +576,7 @@ Private Sub Registrar(ByVal marco As String, ByVal ruta As String, ByVal hoja As
     ws.Cells(r, 7).Value = nFil
     ws.Cells(r, 8).Value = nCol
     ws.Cells(r, 9).Value = n
-    ws.Cells(r, 10).Value = avisos
+    ws.Cells(r, 10).Value = Trim$(avisos & IIf(Len(info) > 0, "[info] " & info, ""))
     If Len(avisos) > 0 Then ws.Cells(r, 10).Interior.Color = RGB(255, 235, 156)
 End Sub
 

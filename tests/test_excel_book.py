@@ -44,6 +44,9 @@ def test_vba_is_consistent_with_generator(root, tmp_path):
     macros = re.search(r'macros = Array\(([^)]*)\)', src).group(1)
     for m in re.findall(r'"(\w+)"', macros):
         assert re.search(rf"^Public Sub {m}\(", src, re.M), m
+    # nombres definidos que usa la macro
+    for name in re.findall(r'Names\("(\w+)"\)', src):
+        assert name in wb.defined_names, name
     # ParametroMarco lee desde la fila 13 de Parametros, donde el generador pone los marcos
     assert wb["Parametros"]["A13"].value == "ST"
 

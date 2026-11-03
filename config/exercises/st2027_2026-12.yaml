@@ -1,0 +1,11 @@
+id: st2027@2026-12-31
+nombre: EU-wide stress test 2027 (BORRADOR de plantillas 11/06/2026) — punto de partida 31/12/2026
+fecha_referencia: 2026-12-31
+# COREP/FINREP a 12/2026: marco 4.x (CRR3). Las reglas de mapeo usan las celdas COREP que
+# cita la propia plantilla EBA, sin capa de conceptos: si la EBA cambia las plantillas,
+# se regeneran con 'cuadre-extract st-plantillas'.
+marcos: {ST: st2027-draft, FINREP: "4.x", COREP: "4.x"}
+conceptos: []
+reglas:
+  - rules/st2027/*.yaml
+gravedad: config/severity.yaml

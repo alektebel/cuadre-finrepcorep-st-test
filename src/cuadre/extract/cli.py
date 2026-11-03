@@ -61,6 +61,16 @@ def main(argv: list[str] | None = None) -> int:
     s = sub.add_parser("tasks", help="genera tareas JSONL para los agentes")
     s.add_argument("stage", choices=["extract", "translate", "verify"])
     s.add_argument("--window", type=int, default=3)
+    s.add_argument("--docs", nargs="+", help="solo estos documentos (ids de ingest)")
+    s.add_argument("--solo-con-menciones", action="store_true",
+                   help="extract: solo ventanas que mencionan FINREP/COREP/reconciliación")
+
+    s = sub.add_parser("st-plantillas", help="[2b] plantillas oficiales ST de la EBA: inventario + reglas de mapeo COREP")
+    s.add_argument("--xlsx", required=True)
+    s.add_argument("--prefijo", default="ST27", help="prefijo de los ids de regla")
+    s.add_argument("--rules-dir", required=True, help="p. ej. rules/st2027")
+    s.add_argument("--controles-internos", action="store_true",
+                   help="exporta también las fórmulas internas de la plantilla (miles de reglas)")
 
     sub.add_parser("propose", help="[P] propuestas deterministas por similitud de etiquetas")
     sub.add_parser("review", help="[5] checks deterministas + veredictos -> work/review.json")
@@ -84,17 +94,28 @@ def main(argv: list[str] | None = None) -> int:
               f"{len(inv['issues'])} incidencias -> {a.out}")
     elif a.cmd == "tasks":
         if a.stage == "extract":
-            tasks = pl.extract_tasks(work / "pages.jsonl", window=a.window, work=work)
+            tasks = pl.extract_tasks(work / "pages.jsonl", window=a.window, work=work, docs=a.docs,
+                                     only_mentions=a.solo_con_menciones)
         elif a.stage == "translate":
             pages = pl.load_pages(work / "pages.jsonl") if (work / "pages.jsonl").exists() else {}
             ok = [c for c in pl.read_jsonl(work / "agent_out/extract/*.jsonl")
                   if all(x["ok"] for x in pl.check_candidate(c, pages))]
-            ctx = sorted(glob.glob(str(work / "inventory_*.json"))) + list(a.conceptos)
+            # Para agentes: el resumen compacto si existe (el inventario completo puede pesar decenas de MB)
+            ctx = ([str(work / "resumen_inventario_st.json")] if (work / "resumen_inventario_st.json").exists() else []) \
+                + [f for f in sorted(glob.glob(str(work / "inventory_*.json")))
+                   if not (f.endswith("inventory_st.json") and (work / "resumen_inventario_st.json").exists())] \
+                + list(a.conceptos)
             tasks = pl.translate_tasks(ok, ctx, work=work)
         else:
             tasks = pl.verify_tasks(load_review(work), _labels(_inventories(work)), work=work)
         n = pl.write_jsonl(tasks, work / "tasks" / f"{a.stage}.jsonl")
         print(f"{n} tareas -> {work / 'tasks' / f'{a.stage}.jsonl'}")
+    elif a.cmd == "st-plantillas":
+        from .st_mapping import extract, write_outputs
+
+        res = extract(a.xlsx, a.prefijo)
+        summary = write_outputs(res, Path(a.rules_dir), work, a.controles_internos)
+        print(summary)
     elif a.cmd == "propose":
         invs = _inventories(work)
         st = [i for i in invs if i["framework"] == "ST"]

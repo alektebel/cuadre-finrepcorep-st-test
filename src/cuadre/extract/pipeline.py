@@ -69,9 +69,20 @@ def _clean(d: dict) -> dict:
 
 
 # --------------------------------------------------------------------------- tareas
-def extract_tasks(pages_path: str | Path, window: int = 3, overlap: int = 1, work: Path = Path("work")) -> list[dict]:
+MENTION_RE = re.compile(r"FINREP|COREP|reconcil|consistent with|in line with .{0,40}report", re.I)
+
+
+def extract_tasks(pages_path: str | Path, window: int = 3, overlap: int = 1, work: Path = Path("work"),
+                  docs: list[str] | None = None, only_mentions: bool = False) -> list[dict]:
+    """Ventanas de páginas para el extractor.
+
+    ``only_mentions`` descarta ventanas sin ninguna mención a FINREP/COREP/reconciliación:
+    abarata la pasada, a costa de perder cuadres que el texto describa sin nombrarlos.
+    """
     by_doc = defaultdict(list)
     for (doc, _), p in sorted(load_pages(pages_path).items()):
+        if docs and doc not in docs:
+            continue
         by_doc[doc].append(p)
     tasks = []
     for doc, pages in by_doc.items():
@@ -79,6 +90,10 @@ def extract_tasks(pages_path: str | Path, window: int = 3, overlap: int = 1, wor
         for start in range(0, len(pages), step):
             chunk = pages[start:start + window]
             tid = f"extract-{doc}-p{chunk[0]['page']}-{chunk[-1]['page']}"
+            if only_mentions and not any(MENTION_RE.search(p["text"]) for p in chunk):
+                if start + window >= len(pages):
+                    break
+                continue
             tasks.append({
                 "task_id": tid, "stage": "extract",
                 "prompt": prompt_path("extractor"), "output_schema": "candidate",

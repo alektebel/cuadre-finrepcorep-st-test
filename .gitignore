@@ -10,3 +10,5 @@ out/
 work/**
 !work/.gitkeep
 ~$*.xlsx
+# Reglas generadas voluminosas (se regeneran con cuadre-extract st-plantillas)
+*.opcional

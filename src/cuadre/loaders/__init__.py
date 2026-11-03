@@ -1,9 +1,10 @@
-from . import excel_annex, excel_declared, xbrl_csv, xbrl_xml
+from . import excel_annex, excel_declared, st_eba, xbrl_csv, xbrl_xml
 from .base import CoverageEntry, LoadResult, SourceSpec
 
 LOADERS = {
     "excel_annex": excel_annex.load,
     "excel_declared": excel_declared.load,
+    "st_eba": st_eba.load,
     "xbrl_csv": xbrl_csv.load,
     "xbrl_xml": xbrl_xml.load,
 }

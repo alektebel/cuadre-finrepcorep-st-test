@@ -358,3 +358,21 @@ Ninguna de las dos parece contener cuadres de plantillas ST ↔ FINREP/COREP a n
 celda. Hay que confirmarlo leyendo los PDF; si se confirma, el extractor sacaría pocos o
 ningún candidato de ellas. No se han podido descargar: la red del entorno bloquea
 `eba.europa.eu` y las réplicas probadas.
+
+### Documentos recibidos y procesados (2026-11-03)
+
+Subidos a `main` (commit `35133a5`):
+- Borradores del **EU-wide stress test 2027**: Methodological Note, Template Guidance y
+  Templates (versión 11/06/2026, referencia 31/12/2026).
+- **EBA/GL/2018/04** en español.
+
+Resultados:
+- **Hallazgo principal:** las plantillas ST traen el mapeo a COREP en la columna «COREP
+  CODE / COMPUTATION». `cuadre-extract st-plantillas` lo convierte en **2.489 reglas
+  deterministas** (`rules/st2027/`).
+- **Sin cuadres de FINREP en las plantillas.** Las referencias a FINREP están en el texto
+  de la guía (141 menciones entre TG y MN). Es trabajo para los agentes:
+  `work/tasks/extract.jsonl` tiene 148 tareas, o 98 con `--solo-con-menciones`.
+- **GL 2018/04 (ES):** 0 menciones a FINREP/COREP. Confirmado que no aporta cuadres.
+- **Pendiente:** plantillas oficiales COREP/FINREP del marco 4.x. Sin ellas no se puede
+  verificar que las celdas COREP citadas existan ni montar el inventario COREP.

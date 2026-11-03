@@ -70,6 +70,29 @@ gravedades e importes que el motor Python.
 pip install -e ".[app,dev]"
 ```
 
+## Ejercicio 2027 (borrador EBA de 11/06/2026)
+
+Las plantillas oficiales ST traen una columna **«COREP CODE / COMPUTATION»** con la celda
+COREP de cada fila. De ella sale el catálogo de cuadres de punto de partida sin LLM:
+
+```bash
+cuadre-extract st-plantillas --xlsx "data/raw/eba_st2027/2027 EU-wide stress test - Draft Templates.xlsx" \
+                             --rules-dir rules/st2027 [--controles-internos]
+cuadre excel --ejercicio config/exercises/st2027_2026-12.yaml --salida out/cuadre_st2027.xlsx
+```
+
+Resultado actual: **2.489 reglas** ST = COREP (`CSV_CAP`, `CSV_REA_SUM` y las tres hojas de
+REA de riesgo de crédito). El detalle está en [`rules/st2027/INFORME_EXTRACCION.md`](rules/st2027/INFORME_EXTRACCION.md)
+y el libro, en [`dist/cuadre_st2027.xlsx`](dist/cuadre_st2027.xlsx).
+
+- **Formato ST:** la macro y el loader `st_eba` leen el layout oficial (`RowNum` + columnas
+  numeradas). Referencia: `ST:<hoja>!r<RowNum>c<nº columna>`.
+- **Eje Z geográfico:** en riesgo de crédito las celdas COREP van con Z
+  `GEO=<Geographical breakdown>`, por ejemplo `COREP:C 09.01!r0010c0075@GEO=Total`. Hay que
+  mapear cada hoja por país del export COREP a ese Z (hoja `Mapeo_hojas` o `opciones.sheets`).
+- **Alternativas:** las filas «C 09.02 … or C 09.05 …» generan dos reglas con la etiqueta
+  `alternativa`. La que la entidad no reporte quedará `NO_EVALUABLE`.
+
 ## Motor Python y app local (juego sintético)
 
 ```bash

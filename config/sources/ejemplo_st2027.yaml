@@ -1,0 +1,19 @@
+# Plantilla de fuentes para el ejercicio 2027. Copiar y rellenar con los ficheros de la entidad.
+fuentes:
+  - marco: ST
+    loader: st_eba                 # plantillas oficiales EBA rellenas (layout RowNum + columnas numeradas)
+    fichero: data/entidad/2027 EU-wide stress test - Templates.xlsx
+    escala: 1000000                # las plantillas indican '(mln EUR)'
+    decimales: 2                   # VERIFICAR la precisión con la que se reporta
+  - marco: COREP
+    loader: excel_annex            # export COREP con códigos de fila/columna como texto
+    fichero: data/entidad/corep_2026-12.xlsx
+    escala: 1
+    decimales: 2
+    # Las hojas C 09.01 / C 09.02 / C 09.05 van por país (eje Z). Las reglas de riesgo de
+    # crédito usan Z = "GEO=<valor de 'Geographical breakdown' en la plantilla ST>", p. ej.
+    # "GEO=Total". Mapear cada hoja del export a su Z aquí:
+    # opciones:
+    #   sheets:
+    #     "C 09.01 Total": {template: "C 09.01", z: "GEO=Total"}
+    #     "C 09.01 ES":    {template: "C 09.01", z: "GEO=Spain"}
