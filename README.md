@@ -22,6 +22,21 @@ Sin PowerShell: abre el `.xlsx`, `Alt+F11` → Archivo → Importar →
 `src/cuadre/excel_book/vba/Cuadre.bas`, guarda como `.xlsm` y ejecuta la macro
 `CrearBotones` una vez.
 
+### Requisitos: Excel de escritorio en Windows (Microsoft 365 / Office 2016+)
+
+- **No funciona en Excel para la web** (navegador, OneDrive/SharePoint/Teams), porque
+  ahí no se ejecuta VBA. Ábrelo con «Abrir en la aplicación de escritorio».
+- **Macros bloqueadas al descargar.** Microsoft 365 bloquea las macros de cualquier
+  `.xlsm` que venga de internet, del correo o de GitHub (barra roja «Microsoft ha
+  bloqueado la ejecución de macros»). Antes de abrirlo: clic derecho en el fichero →
+  *Propiedades* → marcar **Desbloquear** → Aceptar. Otra opción es guardarlo en una
+  *ubicación de confianza* (Archivo → Opciones → Centro de confianza).
+- **Para `build_xlsm.ps1`**, una sola vez: Archivo → Opciones → Centro de confianza →
+  Configuración → Configuración de macros → «Confiar en el acceso al modelo de objetos de
+  proyectos de VBA».
+- Las fórmulas se guardan en sintaxis inglesa y Excel en español las muestra traducidas
+  (`SUMAR.SI.CONJUNTO`, `;`…). No hace falta hacer nada.
+
 Demo con datos sintéticos ya cargados: [`dist/cuadre_sintetico.xlsx`](dist/cuadre_sintetico.xlsx)
 (los enlaces «abrir» funcionan si se mantiene la estructura del repositorio).
 
