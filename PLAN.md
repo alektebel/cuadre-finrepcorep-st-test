@@ -328,3 +328,19 @@ verificable.
 | 3 | Motor hecho; el catálogo real está vacío. Test end-to-end sintético en verde |
 | 4 | Hecho: app Streamlit e informe Excel con drill-down |
 | 5 | Pendiente |
+
+### Cambio de objetivo (2026-11-03): entregable final = libro Excel
+
+Decisiones del usuario:
+- VBA permitido (`.xlsm`).
+- Excel autónomo generado desde el catálogo YAML, sin Python en el puesto.
+- Ficheros elegidos con un selector local.
+
+Implementación:
+- `cuadre excel` genera el libro con fórmulas vivas.
+- `Cuadre.bas` carga los ficheros.
+- `tools/build_xlsm.ps1` empaqueta el `.xlsm`.
+
+El motor Python sigue siendo la referencia: un test exige que el libro recalculado dé
+lo mismo que el motor. La app Streamlit pasa a ser una herramienta de mantenimiento
+(revisar reglas extraídas y depurar), no el producto final.

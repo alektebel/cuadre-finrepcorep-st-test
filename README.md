@@ -6,13 +6,56 @@ seguir hasta la regla, su cita normativa, cada operando y la celda del fichero d
 
 Diseño y decisiones: [`PLAN.md`](PLAN.md).
 
+## El libro Excel (entregable principal)
+
+Un libro autónomo: quien lo usa no necesita Python. Se cargan con botones los Excel de
+ST, FINREP y COREP y las hojas de cuadre se recalculan solas.
+
+```bash
+# 1. Generar el libro a partir del catálogo (reglas + conceptos + gravedad)
+cuadre excel --ejercicio config/exercises/st2025_2024-12.yaml --salida out/cuadre.xlsx
+# 2. En Windows con Excel: añadir macros y botones -> out/cuadre.xlsm
+powershell -ExecutionPolicy Bypass -File tools/build_xlsm.ps1 -Xlsx out/cuadre.xlsx
+```
+
+Sin PowerShell: abre el `.xlsx`, `Alt+F11` → Archivo → Importar →
+`src/cuadre/excel_book/vba/Cuadre.bas`, guarda como `.xlsm` y ejecuta la macro
+`CrearBotones` una vez.
+
+Demo con datos sintéticos ya cargados: [`dist/cuadre_sintetico.xlsx`](dist/cuadre_sintetico.xlsx)
+(los enlaces «abrir» funcionan si se mantiene la estructura del repositorio).
+
+| Hoja | Contenido |
+|---|---|
+| Inicio | Instrucciones y botones Cargar ST / FINREP / COREP, Recalcular, Borrar |
+| Resumen | Recuento por estado, gravedad y origen; datos cargados y duplicados |
+| Checks | Una regla por fila: LHS, RHS, diferencia, redondeo admitido, no explicada, estado, gravedad, cita, → operandos |
+| Operandos | Un término por fila: clave, valor, redondeo, fichero/hoja/celda, → dato, abrir origen, ← check |
+| Datos | Un hecho por fila (lo escribe la macro); marca en rojo los implicados en KO y señala duplicados |
+| Carga | Registro por hoja leída: filas/columnas detectadas, nº de datos, avisos |
+| Mapeo_hojas | Hoja → plantilla / eje Z / omitir, para exports cuyo nombre de hoja no es la plantilla |
+| Conceptos, Ajustes, Parametros | Editables: mapa de conceptos, partidas de conciliación, tolerancia y umbrales |
+
+Las fórmulas solo usan funciones de Excel 2010+ (SUMIFS, COUNTIFS, INDEX/MATCH). Un test
+recalcula el libro con LibreOffice y comprueba que da **exactamente** los mismos estados,
+gravedades e importes que el motor Python.
+
+**Límites del libro:**
+- La macro VBA no se ha ejecutado en Excel; solo se verifica que es coherente con el
+  generador (hojas, columnas, macros). Hay que probarla en Windows antes de usarla en real.
+- La macro solo lee Excel con layout de anexo EBA. Para xBRL, o para exports con layout
+  propio, usa `cuadre excel --precargar config/sources/<entidad>.yaml`, que rellena
+  `Datos` con los loaders Python.
+- Si una clave está duplicada en `Datos`, cuenta la primera (igual que el motor) y se
+  marca como `DUPLICADO`.
+
 ## Instalación
 
 ```bash
 pip install -e ".[app,dev]"
 ```
 
-## Uso rápido (juego sintético)
+## Motor Python y app local (juego sintético)
 
 ```bash
 python -m cuadre.synthetic data/synthetic          # regenera datos de prueba (ya versionados)

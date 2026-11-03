@@ -17,7 +17,20 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--salida", default="out/informe_cuadre.xlsx")
     r.add_argument("--fallar-si", choices=["nunca", "ko", "critico"], default="nunca",
                    help="Código de salida 1 si hay KO (o KO críticos): útil en CI")
+    x = sub.add_parser("excel", help="Genera el libro Excel autónomo con fórmulas vivas")
+    x.add_argument("--ejercicio", required=True)
+    x.add_argument("--salida", default="out/cuadre.xlsx")
+    x.add_argument("--precargar", help="config/sources/*.yaml: rellena la hoja Datos con los loaders Python")
     a = ap.parse_args(argv)
+
+    if a.cmd == "excel":
+        from .excel_book import build_workbook
+
+        path = build_workbook(a.ejercicio, a.salida, a.precargar)
+        print(f"Libro: {path}")
+        print("Para añadir las macros: tools/build_xlsm.ps1 (Windows + Excel) o importa "
+              "src/cuadre/excel_book/vba/Cuadre.bas a mano y guarda como .xlsm")
+        return 0
 
     res = run(a.ejercicio, a.fuentes)
     path = write_report(res, a.salida)

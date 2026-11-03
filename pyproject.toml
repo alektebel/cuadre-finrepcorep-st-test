@@ -28,7 +28,7 @@ cuadre-extract = "cuadre.extract.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-cuadre = ["extract/prompts/*.md", "extract/schemas/*.json"]
+cuadre = ["extract/prompts/*.md", "extract/schemas/*.json", "excel_book/vba/*.bas"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
